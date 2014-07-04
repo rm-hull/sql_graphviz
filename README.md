@@ -1,6 +1,6 @@
 # SQL Graphviz
 
-SQL Graphvis is a small python script that generates a [Graphviz](http://www.graphviz.org/)
+SQL Graphviz is a small python script that generates a [Graphviz](http://www.graphviz.org/)
 visualization of a SQL schema dump.
 
 ### Usage
