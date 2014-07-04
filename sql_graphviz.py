@@ -1,5 +1,9 @@
 #!/usr/bin/python
-from pyparsing import Literal, CaselessLiteral, Word, delimitedList, Optional, Combine, Group, alphas, nums, alphanums, Forward, oneOf, sglQuotedString, OneOrMore, ZeroOrMore, CharsNotIn, Suppress
+
+import sys
+from datetime import datetime
+from pyparsing import alphas, alphanums, Literal, Word, Forward, \
+                      OneOrMore, ZeroOrMore, CharsNotIn, Suppress
 
 
 def field_act(s, loc, tok):
@@ -11,11 +15,15 @@ def field_list_act(s, loc, tok):
 
 
 def create_table_act(s, loc, tok):
-    return """"%(tableName)s" [\n\t label="<%(tableName)s> %(tableName)s | %(fields)s"\n\t shape="record"\n];""" % tok
+    return """
+  "%(tableName)s" [
+    label="<%(tableName)s> %(tableName)s | %(fields)s"
+    shape="record" fillcolor="lightblue2" style="filled"
+  ];""" % tok
 
 
 def add_fkey_act(s, loc, tok):
-    return """ "%(tableName)s":%(keyName)s -> "%(fkTable)s":%(fkCol)s """ % tok
+    return """  "%(tableName)s":%(keyName)s -> "%(fkTable)s":%(fkCol)s""" % tok
 
 
 def other_statement_act(s, loc, tok):
@@ -62,6 +70,10 @@ def grammar():
 
 
 def graphviz(filename):
+    print """/*"""
+    print """/* Graphviz of '%s', created %s """ % (filename, datetime.now())
+    print """ * Generated from https://github.com/rm-hull/sql_graphviz"""
+    print """ */"""
     print """digraph g { graph [ rankdir = "LR" ]; """
 
     for i in grammar().parseFile(filename):
@@ -70,4 +82,5 @@ def graphviz(filename):
     print "}"
 
 if __name__ == '__main__':
-    graphviz('dump.sql')
+    filename = sys.stdin if len(sys.argv) == 1 else sys.argv[1]
+    graphviz(filename)
