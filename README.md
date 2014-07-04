@@ -1,7 +1,28 @@
-# SQL_Graphviz
+# SQL Graphviz
+
+SQL Graphvis is a small python script that generates a [Graphviz](http://www.graphviz.org/)
+visualization of a SQL schema dump.
+
+### Usage
+
+Using PostgreSQL, for example, to generate as a PNG file:
+
+    $ pg_dump --schema-only dbname | python sql_graphviz.py | dot -Tpng > graph.png
+
+The program will accept a named file, or if omitted as above, will take from stdin.
+Output to SVG:
+
+    $ pg_dump --schema-only dbname > dump.sql
+    $ python sql_graphviz.py dump.sql > graph.dot
+    $ dot -Tsvg graph.dot > graph.svg
+
+### Example
+
+![SVG](https://rawgithub.com/rm-hull/sql_graphviz/master/example.svg)
+
+## Credits
 
 Extended from http://energyblog.blogspot.co.uk/2006/04/blog-post_20.html by [EnErGy [CSDX]](https://www.blogger.com/profile/09096585177254790874)
-
 
 ## The MIT License (MIT)
 
