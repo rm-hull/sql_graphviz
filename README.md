@@ -3,6 +3,17 @@
 SQL Graphviz is a small python script that generates a [Graphviz](http://www.graphviz.org/)
 visualization of a SQL schema dump.
 
+### Dependencies
+
+SQL Graphviz relies on [pyparsing](https://pypi.python.org/pypi/pyparsing/2.0.3) to grok
+the schema dump. Ubuntu users should install using:
+
+    $ sudo apt-get install python-pyparsing
+    
+while CheeseShop frequenters should install with pip:
+
+    $ sudo pip install pyparsing
+
 ### Usage
 
 Using PostgreSQL, for example, to generate as a PNG file:
