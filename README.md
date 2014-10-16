@@ -35,6 +35,10 @@ Output to SVG:
 
 Extended from http://energyblog.blogspot.co.uk/2006/04/blog-post_20.html by [EnErGy [CSDX]](https://www.blogger.com/profile/09096585177254790874)
 
+## References
+
+* http://pythonhosted.org/pyparsing/
+
 ## The MIT License (MIT)
 
 Copyright (c) 2014 Richard Hull & EnErGy [CSDX]
