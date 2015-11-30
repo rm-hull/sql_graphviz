@@ -2,7 +2,7 @@
 
 import sys
 from datetime import datetime
-from pyparsing import alphas, alphanums, Literal, Word, Forward, OneOrMore, ZeroOrMore, CharsNotIn, Suppress
+from pyparsing import alphas, alphanums, Literal, Word, Forward, OneOrMore, ZeroOrMore, CharsNotIn, Suppress, QuotedString
 
 
 def field_act(s, loc, tok):
@@ -36,13 +36,15 @@ def grammar():
     field_def = OneOrMore(Word(alphanums + "_\"'`:-") | parenthesis)
     field_def.setParseAction(field_act)
 
+    tablename_def = ( Word(alphas + "`_") | QuotedString("\"") )
+
     field_list_def = field_def + ZeroOrMore(Suppress(",") + field_def)
     field_list_def.setParseAction(field_list_act)
 
-    create_table_def = Literal("CREATE") + "TABLE" + Word(alphas + "`_").setResultsName("tableName") + "(" + field_list_def.setResultsName("fields") + ")" + ";"
+    create_table_def = Literal("CREATE") + "TABLE" + tablename_def.setResultsName("tableName") + "(" + field_list_def.setResultsName("fields") + ")" + ";"
     create_table_def.setParseAction(create_table_act)
 
-    add_fkey_def = Literal("ALTER") + "TABLE" + "ONLY" + Word(alphanums + "_").setResultsName("tableName") + "ADD" + "CONSTRAINT" + Word(alphanums + "_") + "FOREIGN" + "KEY" + "(" + Word(alphanums + "_").setResultsName("keyName") + ")" + "REFERENCES" + Word(alphanums + "_").setResultsName("fkTable") + "(" + Word(alphanums + "_").setResultsName("fkCol") + ")" + ";"
+    add_fkey_def = Literal("ALTER") + "TABLE" + "ONLY" + tablename_def.setResultsName("tableName") + "ADD" + "CONSTRAINT" + Word(alphanums + "_") + "FOREIGN" + "KEY" + "(" + Word(alphanums + "_").setResultsName("keyName") + ")" + "REFERENCES" + Word(alphanums + "_").setResultsName("fkTable") + "(" + Word(alphanums + "_").setResultsName("fkCol") + ")" + ";"
     add_fkey_def.setParseAction(add_fkey_act)
 
     other_statement_def = OneOrMore(CharsNotIn(";")) + ";"
