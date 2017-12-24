@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import sys
 from datetime import datetime
@@ -57,16 +57,16 @@ def grammar():
 
 
 def graphviz(filename):
-    print """/*"""
-    print """/* Graphviz of '%s', created %s """ % (filename, datetime.now())
-    print """ * Generated from https://github.com/rm-hull/sql_graphviz"""
-    print """ */"""
-    print """digraph g { graph [ rankdir = "LR" ]; """
+    print("""/*""")
+    print("""/* Graphviz of '%s', created %s """ % (filename, datetime.now()))
+    print(""" * Generated from https://github.com/rm-hull/sql_graphviz""")
+    print(""" */""")
+    print("""digraph g { graph [ rankdir = "LR" ]; """)
 
     for i in grammar().parseFile(filename):
         if i != "":
-            print i
-    print "}"
+            print(i)
+    print("}")
 
 if __name__ == '__main__':
     filename = sys.stdin if len(sys.argv) == 1 else sys.argv[1]
