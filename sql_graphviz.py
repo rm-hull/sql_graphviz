@@ -6,23 +6,27 @@ from pyparsing import alphas, alphanums, Literal, Word, Forward, OneOrMore, Zero
 
 
 def field_act(s, loc, tok):
-    return ("<" + tok[0] + "> " + " ".join(tok)).replace("\"", "\\\"")
+    return '<tr><td bgcolor="grey96" align="left" port="{0}"><font face="Times-bold">{0}</font>  <font color="#535353">{1}</font></td></tr>'.format(tok[0], ' '.join(tok[1::]).replace('"', '\\"'))
 
 
 def field_list_act(s, loc, tok):
-    return " | ".join(tok)
+    return "\n        ".join(tok)
 
 
 def create_table_act(s, loc, tok):
-    return """
-  "%(tableName)s" [
-    label="<%(tableName)s> %(tableName)s | %(fields)s"
-    shape="record" fillcolor="lightblue2" style="filled"
-  ];""" % tok
+    return '''
+  "{tableName}" [
+    shape=none
+    label=<
+      <table border="0" cellspacing="0" cellborder="1">
+        <tr><td bgcolor="lightblue2"><font face="Times-bold" point-size="20">{tableName}</font></td></tr>
+        {fields}
+      </table>
+    >];'''.format(**tok)
 
 
 def add_fkey_act(s, loc, tok):
-    return """  "%(tableName)s":%(keyName)s -> "%(fkTable)s":%(fkCol)s""" % tok
+    return '  "{tableName}":{keyName} -> "{fkTable}":{fkCol}'.format(**tok)
 
 
 def other_statement_act(s, loc, tok):
@@ -57,11 +61,11 @@ def grammar():
 
 
 def graphviz(filename):
-    print("""/*""")
-    print("""/* Graphviz of '%s', created %s """ % (filename, datetime.now()))
-    print(""" * Generated from https://github.com/rm-hull/sql_graphviz""")
-    print(""" */""")
-    print("""digraph g { graph [ rankdir = "LR" ]; """)
+    print("/*")
+    print(" * Graphviz of '%s', created %s" % (filename, datetime.now()))
+    print(" * Generated from https://github.com/rm-hull/sql_graphviz")
+    print(" */")
+    print("digraph g { graph [ rankdir = \"LR\" ];")
 
     for i in grammar().parseFile(filename):
         if i != "":
