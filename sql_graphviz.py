@@ -2,11 +2,11 @@
 
 import sys
 from datetime import datetime
-from pyparsing import alphas, alphanums, Literal, Word, Forward, OneOrMore, ZeroOrMore, CharsNotIn, Suppress, QuotedString
+from pyparsing import alphas, alphanums, Literal, Word, Forward, OneOrMore, ZeroOrMore, CharsNotIn, Suppress, QuotedString, Optional
 
 
 def field_act(s, loc, tok):
-    return '<tr><td bgcolor="grey96" align="left" port="{0}"><font face="Times-bold">{0}</font>  <font color="#535353">{1}</font></td></tr>'.format(tok[0], ' '.join(tok[1::]).replace('"', '\\"'))
+    return '<tr><td bgcolor="grey96" align="left" port="{0}"><font face="Times-bold">{0}</font>  <font color="#535353">{1}</font></td></tr>'.format(tok[0].replace('"', ''), ' '.join(tok[1::]).replace('"', '\\"'))
 
 
 def field_list_act(s, loc, tok):
@@ -48,7 +48,7 @@ def grammar():
     create_table_def = Literal("CREATE") + "TABLE" + tablename_def.setResultsName("tableName") + "(" + field_list_def.setResultsName("fields") + ")" + ";"
     create_table_def.setParseAction(create_table_act)
 
-    add_fkey_def = Literal("ALTER") + "TABLE" + "ONLY" + tablename_def.setResultsName("tableName") + "ADD" + "CONSTRAINT" + Word(alphanums + "_") + "FOREIGN" + "KEY" + "(" + Word(alphanums + "_").setResultsName("keyName") + ")" + "REFERENCES" + Word(alphanums + "_").setResultsName("fkTable") + "(" + Word(alphanums + "_").setResultsName("fkCol") + ")" + ";"
+    add_fkey_def = Literal("ALTER") + "TABLE" + "ONLY" + tablename_def.setResultsName("tableName") + "ADD" + "CONSTRAINT" + Word(alphanums + "_") + "FOREIGN" + "KEY" + "(" + Word(alphanums + "_").setResultsName("keyName") + ")" + "REFERENCES" + Word(alphanums + "_").setResultsName("fkTable") + "(" + Word(alphanums + "_").setResultsName("fkCol") + ")" + Optional(Literal("DEFERRABLE")) + ";"
     add_fkey_def.setParseAction(add_fkey_act)
 
     other_statement_def = OneOrMore(CharsNotIn(";")) + ";"
