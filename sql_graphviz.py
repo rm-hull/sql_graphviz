@@ -37,7 +37,7 @@ def grammar():
     parenthesis = Forward()
     parenthesis <<= "(" + ZeroOrMore(CharsNotIn("()") | parenthesis) + ")"
 
-    field_def = OneOrMore(Word(alphanums + "_\"'`:-") | parenthesis)
+    field_def = OneOrMore(Word(alphanums + "_\"'`:-/") | parenthesis)
     field_def.setParseAction(field_act)
 
     tablename_def = ( Word(alphas + "`_.") | QuotedString("\"") )
