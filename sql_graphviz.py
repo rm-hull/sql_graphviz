@@ -33,11 +33,26 @@ def other_statement_act(s, loc, tok):
     return ""
 
 
+def join_string_act(s, loc, tok):
+    return "".join(tok).replace('\n', '\\n')
+
+
+def quoted_default_value_act(s, loc, tok):
+    return tok[0] + " " + "".join(tok[1::])
+
+
 def grammar():
     parenthesis = Forward()
     parenthesis <<= "(" + ZeroOrMore(CharsNotIn("()") | parenthesis) + ")"
+    parenthesis.setParseAction(join_string_act)
 
-    field_def = OneOrMore(Word(alphanums + "_\"'`:-/") | parenthesis)
+    quoted_string = "'" + OneOrMore(CharsNotIn("'")) + "'"
+    quoted_string.setParseAction(join_string_act)
+
+    quoted_default_value = "DEFAULT" + quoted_string + OneOrMore(CharsNotIn(", \n\t"))
+    quoted_default_value.setParseAction(quoted_default_value_act)
+
+    field_def = OneOrMore(quoted_default_value | Word(alphanums + "_\"'`:-/[]") | parenthesis)
     field_def.setParseAction(field_act)
 
     tablename_def = ( Word(alphas + "`_.") | QuotedString("\"") )
@@ -67,7 +82,7 @@ def graphviz(filename):
     print(" */")
     print("digraph g { graph [ rankdir = \"LR\" ];")
 
-    for i in grammar().parseFile(filename):
+    for i in grammar().setDebug(False).parseFile(filename):
         if i != "":
             print(i)
     print("}")
