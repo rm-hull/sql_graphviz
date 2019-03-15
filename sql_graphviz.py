@@ -52,7 +52,7 @@ def grammar():
     quoted_default_value = "DEFAULT" + quoted_string + OneOrMore(CharsNotIn(", \n\t"))
     quoted_default_value.setParseAction(quoted_default_value_act)
 
-    field_def = OneOrMore(quoted_default_value | Word(alphanums + "_\"'`:-/[]") | parenthesis)
+    field_def = OneOrMore(quoted_default_value | Word(alphanums + "_\"'`:-/[].") | parenthesis)
     field_def.setParseAction(field_act)
 
     tablename_def = ( Word(alphas + "`_.") | QuotedString("\"") )
