@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
+import html
 import sys
 from datetime import datetime
 from pyparsing import alphas, alphanums, Literal, Word, Forward, OneOrMore, ZeroOrMore, CharsNotIn, Suppress, QuotedString, Optional
 
 
 def field_act(s, loc, tok):
-    return '<tr><td bgcolor="grey96" align="left" port="{0}"><font face="Times-bold">{0}</font>  <font color="#535353">{1}</font></td></tr>'.format(tok[0].replace('"', ''), ' '.join(tok[1::]).replace('"', '\\"'))
+    fieldName = tok[0].replace('"', '')
+    fieldSpec = html.escape(' '.join(tok[1::]).replace('"', '\\"'))
+    return '<tr><td bgcolor="grey96" align="left" port="{0}"><font face="Times-bold">{0}</font>  <font color="#535353">{1}</font></td></tr>'.format(fieldName, fieldSpec)
 
 
 def field_list_act(s, loc, tok):
