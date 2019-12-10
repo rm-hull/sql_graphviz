@@ -2,6 +2,7 @@
 
 import argparse
 import html
+import itertools
 import sys
 from datetime import datetime
 from pyparsing import alphas, alphanums, Literal, Word, Forward, OneOrMore, ZeroOrMore, CharsNotIn, Suppress, QuotedString, Optional
@@ -102,32 +103,53 @@ def grammar():
 
     return OneOrMore(comment_def | create_table_def | add_fkey_def | other_statement_def)
 
+def get_table(tables, name):
+    res = tables.get(name)
+    if res is None:
+        warn('unknown table {!r}'.format(name))
+    return res
+
 def parse(filename):
     parsed = grammar().setDebug(False).parseFile(filename)
     tables = { table.name : table for table in filter(lambda s: isinstance(s, Table), parsed) }
     for fk in filter(lambda s: isinstance(s, FKey), parsed):
-        def get_table(name):
-            res = tables.get(name)
-            if res is None:
-                warn('foreign key references unknown table {!r}'.format(name))
-            return res
         fk.source = get_table(tables, fk.table)
         fk.target = get_table(tables, fk.ftable)
         if fk.source is not None and fk.target is not None:
             fk.source.outgoing.append(fk)
             fk.target.incoming.append(fk)
-    return parsed
+    return parsed, tables
 
-def graphviz(filename):
+def graphviz(filename, filter):
     print("/*")
     print(" * Graphviz of '%s', created %s" % (filename, datetime.now()))
     print(" * Generated from https://github.com/rm-hull/sql_graphviz")
     print(" */")
     print("digraph g { graph [ rankdir = \"LR\" ];")
 
-    for stmt in parse(filename);
-        if not isinstance(stmt, OtherStatement):
-            print(stmt)
+    parsed, tables = parse(filename)
+    if filter is None:
+        for stmt in parsed:
+            if not isinstance(stmt, OtherStatement):
+                print(stmt)
+    else:
+        marks = set()
+        def print_connex(table):
+            if id(table) in marks:
+                return
+            marks.add(id(table))
+            print(table)
+            for fk in itertools.chain(table.outgoing, table.incoming):
+                if id(fk) not in marks:
+                    marks.add(id(fk))
+                    print(fk)
+                    print_connex(fk.source)
+                    print_connex(fk.target)
+        for table in filter:
+            table = get_table(tables, table)
+            if table is not None:
+                print_connex(table)
+
     print("}")
 
 parser = argparse.ArgumentParser()
@@ -135,7 +157,12 @@ parser.add_argument('filename',
                     help='schema dump to parse, stdin by default',
                     nargs='?',
                     default=sys.stdin)
+parser.add_argument('-f',
+                    '--filter',
+                    action='append',
+                    help='show only given table and related',
+                    metavar='TABLE')
 args = parser.parse_args()
 
 if __name__ == '__main__':
-    graphviz(args.filename)
+    graphviz(args.filename, filter=args.filter)
