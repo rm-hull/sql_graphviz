@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import argparse
 import html
 import sys
 from datetime import datetime
@@ -129,6 +130,12 @@ def graphviz(filename):
             print(stmt)
     print("}")
 
+parser = argparse.ArgumentParser()
+parser.add_argument('filename',
+                    help='schema dump to parse, stdin by default',
+                    nargs='?',
+                    default=sys.stdin)
+args = parser.parse_args()
+
 if __name__ == '__main__':
-    filename = sys.stdin if len(sys.argv) == 1 else sys.argv[1]
-    graphviz(filename)
+    graphviz(args.filename)
