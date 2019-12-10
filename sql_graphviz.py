@@ -123,7 +123,7 @@ def parse(filename):
             fk.target.incoming.append(fk)
     return parsed, tables
 
-def graphviz(filename, filter):
+def graphviz(filename, filter, filter_path):
     print("/*")
     print(" * Graphviz of '%s', created %s" % (filename, datetime.now()))
     print(" * Generated from https://github.com/rm-hull/sql_graphviz")
@@ -131,11 +131,7 @@ def graphviz(filename, filter):
     print("digraph g { graph [ rankdir = \"LR\" ];")
 
     parsed, tables = parse(filename)
-    if filter is None:
-        for stmt in parsed:
-            if not isinstance(stmt, OtherStatement):
-                print(stmt)
-    else:
+    if filter is not None:
         marks = set()
         def print_connex(table):
             if id(table) in marks:
@@ -153,6 +149,46 @@ def graphviz(filename, filter):
             if table is not None:
                 table.highlight = True
                 print_connex(table)
+    elif filter_path is not None:
+        filter = set(filter_path)
+        for f in filter:
+            table = get_table(tables, f)
+            if table is not None:
+                table.highlight = True
+        marks = set()
+        def print_path(table, ends):
+            path = table.name in ends
+            if id(table) in marks:
+                return path
+            if path:
+                if id(table) not in marks:
+                    marks.add(id(table))
+                    print(table)
+                return True
+            marks.add(id(table))
+            for fk in table.outgoing:
+                if print_path(fk.target, ends):
+                    path = True
+                    if id(fk) not in marks:
+                        marks.add(id(fk))
+                        print(fk)
+            for fk in table.incoming:
+                if print_path(fk.source, ends):
+                    path = True
+                    if id(fk) not in marks:
+                        marks.add(id(fk))
+                        print(fk)
+            if path:
+                print(table)
+            return path
+        for table in filter:
+            table = get_table(tables, table)
+            if table is not None:
+                print_path(table, filter - set([table.name]))
+    else:
+        for stmt in parsed:
+            if not isinstance(stmt, OtherStatement):
+                print(stmt)
 
     print("}")
 
@@ -164,9 +200,14 @@ parser.add_argument('filename',
 parser.add_argument('-f',
                     '--filter',
                     action='append',
-                    help='show only given table and related',
+                    help='show only given tables and related',
+                    metavar='TABLE')
+parser.add_argument('-p',
+                    '--filter-path',
+                    action='append',
+                    help='show only tables on paths between given tables',
                     metavar='TABLE')
 args = parser.parse_args()
 
 if __name__ == '__main__':
-    graphviz(args.filename, filter=args.filter)
+    graphviz(args.filename, filter=args.filter, filter_path=args.filter_path)
