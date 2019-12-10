@@ -24,6 +24,7 @@ class Table:
         self.fields = tok['fields']
         self.outgoing = []
         self.incoming = []
+        self.highlight = False
 
     def __str__(self):
         return '''
@@ -31,10 +32,12 @@ class Table:
         shape=none
         label=<
           <table border="0" cellspacing="0" cellborder="1">
-            <tr><td bgcolor="lightblue2"><font face="Times-bold" point-size="20">{name}</font></td></tr>
+            <tr><td bgcolor="{color}"><font face="Times-bold" point-size="20">{name}</font></td></tr>
             {fields}
           </table>
-        >];'''.format(name=self.name, fields="\n        ".join(map(str, self.fields)))
+        >];'''.format(name=self.name,
+                      fields="\n        ".join(map(str, self.fields)),
+                      color="red" if self.highlight else "lightblue2")
 
 
 class FKey:
@@ -148,6 +151,7 @@ def graphviz(filename, filter):
         for table in filter:
             table = get_table(tables, table)
             if table is not None:
+                table.highlight = True
                 print_connex(table)
 
     print("}")
