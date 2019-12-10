@@ -5,7 +5,7 @@ import html
 import itertools
 import sys
 from datetime import datetime
-from pyparsing import alphas, alphanums, Literal, Word, Forward, OneOrMore, ZeroOrMore, CharsNotIn, Suppress, QuotedString, Optional
+from pyparsing import alphas, alphanums, delimitedList, Literal, Word, Forward, OneOrMore, ZeroOrMore, CharsNotIn, Suppress, QuotedString, Optional
 
 class Field:
 
@@ -53,9 +53,9 @@ class FKey:
     def __str__(self):
         return '  "{table}":{key} -> "{ftable}":{fcol}'.format(
             table=self.table,
-            key=self.key,
+            key=self.key[0],
             ftable=self.ftable,
-            fcol=self.fcol)
+            fcol=self.fcol[0])
 
 
 class OtherStatement:
@@ -95,7 +95,7 @@ def grammar():
     create_table_def = Literal("CREATE") + "TABLE" + tablename_def.setResultsName("tableName") + "(" + field_list_def.setResultsName("fields") + ")" + ";"
     create_table_def.setParseAction(Table)
 
-    add_fkey_def = Literal("ALTER") + "TABLE" + "ONLY" + tablename_def.setResultsName("tableName") + "ADD" + "CONSTRAINT" + Word(alphanums + "_") + "FOREIGN" + "KEY" + "(" + Word(alphanums + "_").setResultsName("keyName") + ")" + "REFERENCES" + Word(alphanums + "._").setResultsName("fkTable") + "(" + Word(alphanums + "_").setResultsName("fkCol") + ")" + Optional(Literal("DEFERRABLE")) + Optional(Literal("ON") + "DELETE" + ( Literal("CASCADE") | Literal("RESTRICT") )) + ";"
+    add_fkey_def = Literal("ALTER") + "TABLE" + "ONLY" + tablename_def.setResultsName("tableName") + "ADD" + "CONSTRAINT" + Word(alphanums + "_") + "FOREIGN" + "KEY" + "(" + delimitedList(Word(alphanums + "_")).setResultsName("keyName") + ")" + "REFERENCES" + Word(alphanums + "._").setResultsName("fkTable") + "(" + delimitedList(Word(alphanums + "_")).setResultsName("fkCol") + ")" + Optional(Literal("DEFERRABLE")) + Optional(Literal("ON") + "DELETE" + ( Literal("CASCADE") | Literal("RESTRICT") )) + ";"
     add_fkey_def.setParseAction(FKey)
 
     other_statement_def = OneOrMore(CharsNotIn(";")) + ";"
