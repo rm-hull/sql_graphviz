@@ -20,6 +20,8 @@ class Table:
     def __init__(self, loc, tok):
         self.name = tok['tableName']
         self.fields = tok['fields']
+        self.outgoing = []
+        self.incoming = []
 
     def __str__(self):
         return '''
@@ -40,6 +42,8 @@ class FKey:
         self.key = tok['keyName']
         self.ftable = tok['fkTable']
         self.fcol = tok['fkCol']
+        self.source = None
+        self.target = None
 
     def __str__(self):
         return '  "{table}":{key} -> "{ftable}":{fcol}'.format(
@@ -99,6 +103,18 @@ def grammar():
 
 def parse(filename):
     parsed = grammar().setDebug(False).parseFile(filename)
+    tables = { table.name : table for table in filter(lambda s: isinstance(s, Table), parsed) }
+    for fk in filter(lambda s: isinstance(s, FKey), parsed):
+        def get_table(name):
+            res = tables.get(name)
+            if res is None:
+                warn('foreign key references unknown table {!r}'.format(name))
+            return res
+        fk.source = get_table(tables, fk.table)
+        fk.target = get_table(tables, fk.ftable)
+        if fk.source is not None and fk.target is not None:
+            fk.source.outgoing.append(fk)
+            fk.target.incoming.append(fk)
     return parsed
 
 def graphviz(filename):
