@@ -58,7 +58,7 @@ def grammar():
     field_def = OneOrMore(quoted_default_value | Word(alphanums + "_\"'`:-/[].") | parenthesis)
     field_def.setParseAction(field_act)
 
-    tablename_def = ( Word(alphas + "`_.") | QuotedString("\"") )
+    tablename_def = ( Word(alphanums + "`_.") | QuotedString("\"") )
 
     field_list_def = field_def + ZeroOrMore(Suppress(",") + field_def)
     field_list_def.setParseAction(field_list_act)
