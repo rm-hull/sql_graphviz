@@ -66,7 +66,9 @@ def grammar():
     create_table_def = Literal("CREATE") + "TABLE" + tablename_def.setResultsName("tableName") + "(" + field_list_def.setResultsName("fields") + ")" + ";"
     create_table_def.setParseAction(create_table_act)
 
-    add_fkey_def = Literal("ALTER") + "TABLE" + "ONLY" + tablename_def.setResultsName("tableName") + "ADD" + "CONSTRAINT" + Word(alphanums + "_") + "FOREIGN" + "KEY" + "(" + Word(alphanums + "_").setResultsName("keyName") + ")" + "REFERENCES" + Word(alphanums + "._").setResultsName("fkTable") + "(" + Word(alphanums + "_").setResultsName("fkCol") + ")" + Optional(Literal("DEFERRABLE")) + Optional(Literal("ON") + "DELETE" + ( Literal("CASCADE") | Literal("RESTRICT") )) + ";"
+    delete_restrict_action = Literal("CASCADE") | Literal("RESTRICT") | Literal("NO ACTION") | ( Literal("SET") + ( Literal("NULL") | Literal("DEFAULT") ))
+
+    add_fkey_def = Literal("ALTER") + "TABLE" + "ONLY" + tablename_def.setResultsName("tableName") + "ADD" + "CONSTRAINT" + Word(alphanums + "_") + "FOREIGN" + "KEY" + "(" + Word(alphanums + "_").setResultsName("keyName") + ")" + "REFERENCES" + Word(alphanums + "._").setResultsName("fkTable") + "(" + Word(alphanums + "_").setResultsName("fkCol") + ")" + Optional(Literal("DEFERRABLE")) + Optional(Literal("ON") + "UPDATE" + delete_restrict_action) + Optional(Literal("ON") + "DELETE" + delete_restrict_action) + ";"
     add_fkey_def.setParseAction(add_fkey_act)
 
     other_statement_def = OneOrMore(CharsNotIn(";")) + ";"
