@@ -52,7 +52,6 @@ def create_table_act(s, loc, tok):
 
 
 def add_fkey_act(s, loc, tok):
-    # maybe invert keyName and fkCol
     return '  "{tableName}":{keyName}_right -> "{fkTable}":{fkCol}'.format(**tok)
 
 
