@@ -89,7 +89,8 @@ def grammar():
     delete_restrict_action = (CaselessLiteral("CASCADE")
         | CaselessLiteral("RESTRICT")
         | CaselessLiteral("NO ACTION")
-        | ( CaselessLiteral("SET") + ( CaselessLiteral("NULL") | CaselessLiteral("DEFAULT") )))
+        | ( CaselessLiteral("SET")
+            + ( CaselessLiteral("NULL") | CaselessLiteral("DEFAULT") )))
 
     add_fkey_def = (CaselessLiteral("ALTER")
         + CaselessLiteral("TABLE")
@@ -100,11 +101,9 @@ def grammar():
         + Word(alphanums + "_")
         + CaselessLiteral("FOREIGN")
         + CaselessLiteral("KEY")
-        + "("
-        + Word(alphanums + "_").setResultsName("keyName") + ")"
+        + "(" + Word(alphanums + "_").setResultsName("keyName") + ")"
         + "REFERENCES" + Word(alphanums + "._").setResultsName("fkTable")
-        + "("
-        + Word(alphanums + "_").setResultsName("fkCol") + ")"
+        + "(" + Word(alphanums + "_").setResultsName("fkCol") + ")"
         + Optional(CaselessLiteral("DEFERRABLE"))
         + Optional(CaselessLiteral("ON") + "UPDATE" + delete_restrict_action)
         + Optional(CaselessLiteral("ON") + "DELETE" + delete_restrict_action)
