@@ -6,7 +6,6 @@ from datetime import datetime
 from pyparsing import (
     alphas,
     alphanums,
-    Literal,
     CaselessLiteral,
     Word,
     Forward,
