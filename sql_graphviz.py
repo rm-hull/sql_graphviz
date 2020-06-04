@@ -3,7 +3,19 @@
 import html
 import sys
 from datetime import datetime
-from pyparsing import alphas, alphanums, Literal, Word, Forward, OneOrMore, ZeroOrMore, CharsNotIn, Suppress, QuotedString, Optional
+from pyparsing import (
+    alphas,
+    alphanums,
+    Literal,
+    Word,
+    Forward,
+    OneOrMore,
+    ZeroOrMore,
+    CharsNotIn,
+    Suppress,
+    QuotedString,
+    Optional
+)
 
 
 def field_act(s, loc, tok):
@@ -52,10 +64,14 @@ def grammar():
     quoted_string = "'" + OneOrMore(CharsNotIn("'")) + "'"
     quoted_string.setParseAction(join_string_act)
 
-    quoted_default_value = "DEFAULT" + quoted_string + OneOrMore(CharsNotIn(", \n\t"))
+    quoted_default_value = ("DEFAULT"
+        + quoted_string
+        + OneOrMore(CharsNotIn(", \n\t")))
     quoted_default_value.setParseAction(quoted_default_value_act)
 
-    field_def = OneOrMore(quoted_default_value | Word(alphanums + "_\"'`:-/[].") | parenthesis)
+    field_def = OneOrMore(quoted_default_value
+        | Word(alphanums + "_\"'`:-/[].")
+        | parenthesis)
     field_def.setParseAction(field_act)
 
     tablename_def = ( Word(alphanums + "`_.") | QuotedString("\"") )
@@ -63,12 +79,36 @@ def grammar():
     field_list_def = field_def + ZeroOrMore(Suppress(",") + field_def)
     field_list_def.setParseAction(field_list_act)
 
-    create_table_def = Literal("CREATE") + "TABLE" + tablename_def.setResultsName("tableName") + "(" + field_list_def.setResultsName("fields") + ")" + ";"
+    create_table_def = (Literal("CREATE")
+        + "TABLE"
+        + tablename_def.setResultsName("tableName")
+        + "(" + field_list_def.setResultsName("fields") + ")"
+        + ";")
     create_table_def.setParseAction(create_table_act)
 
-    delete_restrict_action = Literal("CASCADE") | Literal("RESTRICT") | Literal("NO ACTION") | ( Literal("SET") + ( Literal("NULL") | Literal("DEFAULT") ))
+    delete_restrict_action = (Literal("CASCADE")
+        | Literal("RESTRICT")
+        | Literal("NO ACTION")
+        | ( Literal("SET") + ( Literal("NULL") | Literal("DEFAULT") )))
 
-    add_fkey_def = Literal("ALTER") + "TABLE" + "ONLY" + tablename_def.setResultsName("tableName") + "ADD" + "CONSTRAINT" + Word(alphanums + "_") + "FOREIGN" + "KEY" + "(" + Word(alphanums + "_").setResultsName("keyName") + ")" + "REFERENCES" + Word(alphanums + "._").setResultsName("fkTable") + "(" + Word(alphanums + "_").setResultsName("fkCol") + ")" + Optional(Literal("DEFERRABLE")) + Optional(Literal("ON") + "UPDATE" + delete_restrict_action) + Optional(Literal("ON") + "DELETE" + delete_restrict_action) + ";"
+    add_fkey_def = (Literal("ALTER")
+        + "TABLE"
+        + "ONLY"
+        + tablename_def.setResultsName("tableName")
+        + "ADD"
+        + "CONSTRAINT"
+        + Word(alphanums + "_")
+        + "FOREIGN"
+        + "KEY"
+        + "("
+        + Word(alphanums + "_").setResultsName("keyName") + ")"
+        + "REFERENCES" + Word(alphanums + "._").setResultsName("fkTable")
+        + "("
+        + Word(alphanums + "_").setResultsName("fkCol") + ")"
+        + Optional(Literal("DEFERRABLE"))
+        + Optional(Literal("ON") + "UPDATE" + delete_restrict_action)
+        + Optional(Literal("ON") + "DELETE" + delete_restrict_action)
+        + ";")
     add_fkey_def.setParseAction(add_fkey_act)
 
     other_statement_def = OneOrMore(CharsNotIn(";")) + ";"
@@ -77,7 +117,12 @@ def grammar():
     comment_def = "--" + ZeroOrMore(CharsNotIn("\n"))
     comment_def.setParseAction(other_statement_act)
 
-    return OneOrMore(comment_def | create_table_def | add_fkey_def | other_statement_def)
+    return OneOrMore(
+        comment_def
+        | create_table_def
+        | add_fkey_def
+        | other_statement_def
+    )
 
 
 def graphviz(filename):
