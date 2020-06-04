@@ -7,6 +7,7 @@ from pyparsing import (
     alphas,
     alphanums,
     Literal,
+    CaselessLiteral,
     Word,
     Forward,
     OneOrMore,
@@ -64,7 +65,7 @@ def grammar():
     quoted_string = "'" + OneOrMore(CharsNotIn("'")) + "'"
     quoted_string.setParseAction(join_string_act)
 
-    quoted_default_value = ("DEFAULT"
+    quoted_default_value = (CaselessLiteral("DEFAULT")
         + quoted_string
         + OneOrMore(CharsNotIn(", \n\t")))
     quoted_default_value.setParseAction(quoted_default_value_act)
@@ -79,35 +80,35 @@ def grammar():
     field_list_def = field_def + ZeroOrMore(Suppress(",") + field_def)
     field_list_def.setParseAction(field_list_act)
 
-    create_table_def = (Literal("CREATE")
-        + "TABLE"
+    create_table_def = (CaselessLiteral("CREATE")
+        + CaselessLiteral("TABLE")
         + tablename_def.setResultsName("tableName")
         + "(" + field_list_def.setResultsName("fields") + ")"
         + ";")
     create_table_def.setParseAction(create_table_act)
 
-    delete_restrict_action = (Literal("CASCADE")
-        | Literal("RESTRICT")
-        | Literal("NO ACTION")
-        | ( Literal("SET") + ( Literal("NULL") | Literal("DEFAULT") )))
+    delete_restrict_action = (CaselessLiteral("CASCADE")
+        | CaselessLiteral("RESTRICT")
+        | CaselessLiteral("NO ACTION")
+        | ( CaselessLiteral("SET") + ( CaselessLiteral("NULL") | CaselessLiteral("DEFAULT") )))
 
-    add_fkey_def = (Literal("ALTER")
-        + "TABLE"
-        + "ONLY"
+    add_fkey_def = (CaselessLiteral("ALTER")
+        + CaselessLiteral("TABLE")
+        + CaselessLiteral("ONLY")
         + tablename_def.setResultsName("tableName")
-        + "ADD"
-        + "CONSTRAINT"
+        + CaselessLiteral("ADD")
+        + CaselessLiteral("CONSTRAINT")
         + Word(alphanums + "_")
-        + "FOREIGN"
-        + "KEY"
+        + CaselessLiteral("FOREIGN")
+        + CaselessLiteral("KEY")
         + "("
         + Word(alphanums + "_").setResultsName("keyName") + ")"
         + "REFERENCES" + Word(alphanums + "._").setResultsName("fkTable")
         + "("
         + Word(alphanums + "_").setResultsName("fkCol") + ")"
-        + Optional(Literal("DEFERRABLE"))
-        + Optional(Literal("ON") + "UPDATE" + delete_restrict_action)
-        + Optional(Literal("ON") + "DELETE" + delete_restrict_action)
+        + Optional(CaselessLiteral("DEFERRABLE"))
+        + Optional(CaselessLiteral("ON") + "UPDATE" + delete_restrict_action)
+        + Optional(CaselessLiteral("ON") + "DELETE" + delete_restrict_action)
         + ";")
     add_fkey_def.setParseAction(add_fkey_act)
 
