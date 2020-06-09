@@ -10,7 +10,6 @@ readable and PEP8-compliant.
 The source code is available to clone at: https://github.com/rm-hull/sql_graphviz
 
 ## Contributors
-*
 * Wouter De Borger (@wouterdb)
 * Lev Alexandrovich Neiman (@lan17)
 * Max Franke (@mfranke93)
