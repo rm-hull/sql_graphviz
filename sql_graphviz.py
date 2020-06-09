@@ -41,7 +41,14 @@ def create_table_act(s, loc, tok):
 
 
 def add_fkey_act(s, loc, tok):
-    return '  "{tableName}":{keyName} -> "{fkTable}":{fkCol}'.format(**tok)
+    return "\n".join(
+        '  "{tableName}":{keyName} -> "{fkTable}":{fkCol}'.format(**{
+            **tok,
+            "keyName": tok['keyName'][i],
+            "fkCol": tok['fkCol'][i],
+        })
+        for i in range(0, len(tok['keyName']))
+    )
 
 
 def other_statement_act(s, loc, tok):
@@ -80,6 +87,7 @@ def grammar():
     field_list_def.setParseAction(field_list_act)
 
     create_table_def = (CaselessLiteral("CREATE")
+        + Optional(CaselessLiteral("UNLOGGED"))
         + CaselessLiteral("TABLE")
         + tablename_def.setResultsName("tableName")
         + "(" + field_list_def.setResultsName("fields") + ")"
@@ -92,6 +100,11 @@ def grammar():
         | ( CaselessLiteral("SET")
             + ( CaselessLiteral("NULL") | CaselessLiteral("DEFAULT") )))
 
+    fkey_cols = (
+        Word(alphanums + "._")
+        + ZeroOrMore(Suppress(",") + Word(alphanums + "._"))
+    )
+
     add_fkey_def = (CaselessLiteral("ALTER")
         + CaselessLiteral("TABLE")
         + CaselessLiteral("ONLY")
@@ -101,9 +114,9 @@ def grammar():
         + Word(alphanums + "_")
         + CaselessLiteral("FOREIGN")
         + CaselessLiteral("KEY")
-        + "(" + Word(alphanums + "_").setResultsName("keyName") + ")"
+        + "(" + fkey_cols.setResultsName("keyName") + ")"
         + "REFERENCES" + Word(alphanums + "._").setResultsName("fkTable")
-        + "(" + Word(alphanums + "_").setResultsName("fkCol") + ")"
+        + "(" + fkey_cols.setResultsName("fkCol") + ")"
         + Optional(CaselessLiteral("DEFERRABLE"))
         + Optional(CaselessLiteral("ON") + "UPDATE" + delete_restrict_action)
         + Optional(CaselessLiteral("ON") + "DELETE" + delete_restrict_action)
