@@ -1,6 +1,7 @@
 # SQL Graphviz
+[![Maintenance](https://img.shields.io/maintenance/yes/2020.svg?maxAge=2592000)]()
 
-SQL Graphviz is a small python script that generates a [Graphviz](http://www.graphviz.org/)
+SQL Graphviz is a small python 3 script that generates a [Graphviz](http://www.graphviz.org/)
 visualization of a SQL schema dump.
 
 ### Dependencies
@@ -8,11 +9,16 @@ visualization of a SQL schema dump.
 SQL Graphviz relies on [pyparsing](https://pypi.python.org/pypi/pyparsing/2.0.3) to grok
 the schema dump. Ubuntu users should install using:
 
-    $ sudo apt-get install python-pyparsing
-    
+    $ sudo apt-get install python3-pyparsing
+
 while CheeseShop frequenters should install with pip:
 
-    $ sudo pip install pyparsing
+    $ sudo pip3install pyparsing
+
+Alternatively, using **pipenv** as follows (ensure it is installed first):
+
+    $ pipenv install
+    $ pipenv shell
 
 ### Usage
 
