@@ -21,7 +21,14 @@ from pyparsing import (
 def field_act(s, loc, tok):
     fieldName = tok[0].replace('"', '')
     fieldSpec = html.escape(' '.join(tok[1::]).replace('"', '\\"'))
-    return '<tr><td bgcolor="grey96" align="left" port="{0}"><font face="Times-bold">{0}</font>  <font color="#535353">{1}</font></td></tr>'.format(fieldName, fieldSpec)
+    return '''<tr>
+        <td bgcolor="grey96" align="left" port="{0}">
+            <font face="Times-bold">{0}</font>
+        </td>
+        <td align="left" port="{0}_right">
+            <font color="#535353">{1}</font>
+        </td>
+    </tr>'''.format(fieldName, fieldSpec)
 
 
 def field_list_act(s, loc, tok):
@@ -30,11 +37,15 @@ def field_list_act(s, loc, tok):
 
 def create_table_act(s, loc, tok):
     return '''
-  "{tableName}" [
+    "{tableName}" [
     shape=none
     label=<
       <table border="0" cellspacing="0" cellborder="1">
-        <tr><td bgcolor="lightblue2"><font face="Times-bold" point-size="20">{tableName}</font></td></tr>
+        <tr>
+            <td bgcolor="lightblue2" colspan="2">
+                <font face="Times-bold" point-size="20">{tableName}</font>
+            </td>
+        </tr>
         {fields}
       </table>
     >];'''.format(**tok)
@@ -42,7 +53,7 @@ def create_table_act(s, loc, tok):
 
 def add_fkey_act(s, loc, tok):
     return "\n".join(
-        '  "{tableName}":{keyName} -> "{fkTable}":{fkCol}'.format(**{
+        '  "{tableName}":{keyName}_right -> "{fkTable}":{fkCol}'.format(**{
             **tok,
             "keyName": tok['keyName'][i],
             "fkCol": tok['fkCol'][i],
