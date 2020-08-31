@@ -13,7 +13,7 @@ the schema dump. Ubuntu users should install using:
 
 while CheeseShop frequenters should install with pip:
 
-    $ sudo pip3install pyparsing
+    $ sudo pip3 install pyparsing
 
 Arch linux users can install the dependencies like this:
 
