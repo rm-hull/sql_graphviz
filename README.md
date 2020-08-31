@@ -15,6 +15,10 @@ while CheeseShop frequenters should install with pip:
 
     $ sudo pip3install pyparsing
 
+Arch linux users can install the dependencies like this:
+
+    $ sudo pacman -S python-pyparsing
+
 Alternatively, using **pipenv** as follows (ensure it is installed first):
 
     $ pipenv install
