@@ -1,5 +1,5 @@
 # SQL Graphviz
-[![Maintenance](https://img.shields.io/maintenance/yes/2020.svg?maxAge=2592000)]()
+[![Maintenance](https://img.shields.io/maintenance/yes/2021.svg?maxAge=2592000)]()
 
 SQL Graphviz is a small python 3 script that generates a [Graphviz](http://www.graphviz.org/)
 visualization of a SQL schema dump.
