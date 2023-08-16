@@ -83,7 +83,7 @@ def grammar():
         | parenthesis)
     field_def.setParseAction(field_act)
 
-    tablename_def = ( ZeroOrMore(Word(alphanums + "`_.")) + Optional(QuotedString("\"")) )
+    tablename_def = (Word(alphanums + "`_.") | QuotedString("\""))
 
     field_list_def = field_def + ZeroOrMore(Suppress(",") + field_def)
     field_list_def.setParseAction(field_list_act)
@@ -117,7 +117,7 @@ def grammar():
         + CaselessLiteral("FOREIGN")
         + CaselessLiteral("KEY")
         + "(" + fkey_cols.setResultsName("keyName") + ")"
-        + "REFERENCES" + tablename_def.setResultsName("fkTable")
+        + CaselessLiteral("REFERENCES") + tablename_def.setResultsName("fkTable")
         + "(" + fkey_cols.setResultsName("fkCol") + ")"
         + Optional(CaselessLiteral("DEFERRABLE"))
         + Optional(CaselessLiteral("ON") + "UPDATE" + delete_restrict_action)
