@@ -91,6 +91,7 @@ def grammar():
     create_table_def = (CaselessLiteral("CREATE")
         + Optional(CaselessLiteral("UNLOGGED"))
         + CaselessLiteral("TABLE")
+        + Optional(CaselessLiteral("IF NOT EXISTS"))
         + tablename_def.setResultsName("tableName")
         + "(" + field_list_def.setResultsName("fields") + ")"
         + ";")
@@ -109,13 +110,14 @@ def grammar():
 
     add_fkey_def = (CaselessLiteral("ALTER")
         + CaselessLiteral("TABLE")
-        + CaselessLiteral("ONLY")
+        + Optional(CaselessLiteral("ONLY"))
         + tablename_def.setResultsName("tableName")
         + CaselessLiteral("ADD")
         + CaselessLiteral("CONSTRAINT")
         + (Word(alphanums + "_") | QuotedString("\""))
         + CaselessLiteral("FOREIGN")
         + CaselessLiteral("KEY")
+        + Optional(CaselessLiteral("IF NOT EXISTS"))
         + "(" + fkey_cols.setResultsName("keyName") + ")"
         + CaselessLiteral("REFERENCES") + tablename_def.setResultsName("fkTable")
         + "(" + fkey_cols.setResultsName("fkCol") + ")"
