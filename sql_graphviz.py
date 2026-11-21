@@ -68,34 +68,34 @@ def quoted_default_value_act(s, loc, tok):
 def grammar():
     parenthesis = Forward()
     parenthesis <<= "(" + ZeroOrMore(CharsNotIn("()") | parenthesis) + ")"
-    parenthesis.setParseAction(join_string_act)
+    parenthesis.set_parse_action(join_string_act)
 
     quoted_string = "'" + OneOrMore(CharsNotIn("'")) + "'"
-    quoted_string.setParseAction(join_string_act)
+    quoted_string.set_parse_action(join_string_act)
 
     quoted_default_value = (CaselessLiteral("DEFAULT")
         + quoted_string
         + OneOrMore(CharsNotIn(", \n\t")))
-    quoted_default_value.setParseAction(quoted_default_value_act)
+    quoted_default_value.set_parse_action(quoted_default_value_act)
 
     field_def = OneOrMore(quoted_default_value
         | Word(alphanums + "_\"'`:-/[].")
         | parenthesis)
-    field_def.setParseAction(field_act)
+    field_def.set_parse_action(field_act)
 
     tablename_def = (Word(alphanums + "`_.") | QuotedString("\""))
 
     field_list_def = field_def + ZeroOrMore(Suppress(",") + field_def)
-    field_list_def.setParseAction(field_list_act)
+    field_list_def.set_parse_action(field_list_act)
 
     create_table_def = (CaselessLiteral("CREATE")
         + Optional(CaselessLiteral("UNLOGGED"))
         + CaselessLiteral("TABLE")
         + Optional(CaselessLiteral("IF NOT EXISTS"))
-        + tablename_def.setResultsName("tableName")
-        + "(" + field_list_def.setResultsName("fields") + ")"
+        + tablename_def.set_results_name("tableName")
+        + "(" + field_list_def.set_results_name("fields") + ")"
         + ";")
-    create_table_def.setParseAction(create_table_act)
+    create_table_def.set_parse_action(create_table_act)
 
     delete_restrict_action = (CaselessLiteral("CASCADE")
         | CaselessLiteral("RESTRICT")
@@ -111,27 +111,27 @@ def grammar():
     add_fkey_def = (CaselessLiteral("ALTER")
         + CaselessLiteral("TABLE")
         + Optional(CaselessLiteral("ONLY"))
-        + tablename_def.setResultsName("tableName")
+        + tablename_def.set_results_name("tableName")
         + CaselessLiteral("ADD")
         + CaselessLiteral("CONSTRAINT")
         + (Word(alphanums + "_") | QuotedString("\""))
         + CaselessLiteral("FOREIGN")
         + CaselessLiteral("KEY")
         + Optional(CaselessLiteral("IF NOT EXISTS"))
-        + "(" + fkey_cols.setResultsName("keyName") + ")"
-        + CaselessLiteral("REFERENCES") + tablename_def.setResultsName("fkTable")
-        + "(" + fkey_cols.setResultsName("fkCol") + ")"
+        + "(" + fkey_cols.set_results_name("keyName") + ")"
+        + CaselessLiteral("REFERENCES") + tablename_def.set_results_name("fkTable")
+        + "(" + fkey_cols.set_results_name("fkCol") + ")"
         + Optional(CaselessLiteral("DEFERRABLE"))
         + Optional(CaselessLiteral("ON") + "UPDATE" + delete_restrict_action)
         + Optional(CaselessLiteral("ON") + "DELETE" + delete_restrict_action)
         + ";")
-    add_fkey_def.setParseAction(add_fkey_act)
+    add_fkey_def.set_parse_action(add_fkey_act)
 
     other_statement_def = OneOrMore(CharsNotIn(";")) + ";"
-    other_statement_def.setParseAction(other_statement_act)
+    other_statement_def.set_parse_action(other_statement_act)
 
     comment_def = "--" + ZeroOrMore(CharsNotIn("\n"))
-    comment_def.setParseAction(other_statement_act)
+    comment_def.set_parse_action(other_statement_act)
 
     return OneOrMore(
         comment_def
@@ -148,7 +148,7 @@ def graphviz(filename):
     print(" */")
     print("digraph g { graph [ rankdir = \"LR\" ];")
 
-    for i in grammar().setDebug(False).parseFile(filename):
+    for i in grammar().set_debug(False).parse_file(filename):
         if i != "":
             print(i)
     print("}")
